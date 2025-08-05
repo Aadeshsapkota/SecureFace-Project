@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SecureFace - Biometric Authentication</title>
+    <link rel="stylesheet" href="style.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    
+    
+  </head>
+  <body>
+    <!-- Animated Background -->
+    <div class="bg-animation"></div>
+
+    <!-- Authentication Page -->
+    <div class="container" id="authPage">
+      <!-- Header -->
+      <header>
+        <div class="logo">
+          <i class="fas fa-fingerprint"></i>
+          <h1>SecureFace</h1>
+        </div>
+        <p class="tagline">
+          Advanced biometric authentication with military-grade security
+        </p>
+      </header>
+
+      <!-- Authentication Section -->
+      <div class="auth-container">
+        <div class="auth-card">
+          <div class="auth-header">
+            <h2>Register</h2>
+            <p>Create your secure biometric account</p>
+          </div>
+
+          <div class="form-group">
+            <label for="registerName">Full Name</label>
+            <input
+              type="text"
+              id="registerName"
+              class="form-control"
+              placeholder="Enter your full name"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="registerEmail">Email</label>
+            <input
+              type="email"
+              id="registerEmail"
+              class="form-control"
+              placeholder="Enter your email"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="registerPassword">Password</label>
+            <input
+              type="password"
+              id="registerPassword"
+              class="form-control"
+              placeholder="Create a strong password"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="registerConformPassword">Conform Password</label>
+            <input
+              type="password"
+              id="registerConformPassword"
+              class="form-control"
+              placeholder="Create a strong password"
+            />
+          </div>
+
+          <div class="form-group">
+            <div class="status-message info">
+              <i class="fas fa-shield-alt"></i> We use AES-256 encryption and
+              bcrypt hashing to protect your data
+            </div>
+          </div>
+
+          <div class="form-group">
+            <button class="btn btn-primary" id="registerBtn">
+              <i class="fas fa-user-plus"></i> Create Account
+            </button>
+          </div>
+        </div>
+
+        <div class="auth-card">
+          <div class="auth-header">
+            <h2>Login</h2>
+            <p>Access your secure account</p>
+          </div>
+
+          <div class="form-group">
+            <label for="loginEmail">Email</label>
+            <input
+              type="email"
+              id="loginEmail"
+              class="form-control"
+              placeholder="Enter your email"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="loginPassword">Password</label>
+            <input
+              type="password"
+              id="loginPassword"
+              class="form-control"
+              placeholder="Enter your password"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="mfaCode">MFA Code</label>
+            <input
+              type="text"
+              id="mfaCode"
+              class="form-control"
+              placeholder="Enter 6-digit code"
+            />
+            <small style="display: block; margin-top: 5px; opacity: 0.7">
+              <i class="fas fa-mobile-alt"></i> Sent to your email
+            </small>
+          </div>
+
+          <div class="form-group">
+            <div class="status-message info">
+              <i class="fas fa-lock"></i> Multi-factor authentication is
+              required for login
+            </div>
+          </div>
+
+          <div class="form-group">
+            <button class="btn btn-primary" id="loginBtn">
+              <i class="fas fa-sign-in-alt"></i> Secure Login
+            </button>
+          </div>
+
+          <div class="form-group text-center">
+            <button class="btn btn-outline" id="faceLoginBtn">
+              <i class="fas fa-camera"></i> Login with Face Recognition
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Face Recognition Section -->
+<div class="face-section">
+  <div class="section-header">
+    <h2>Biometric Enrollment</h2>
+    <p>Secure your identity with facial recognition</p>
+  </div>
+
+  <div class="face-instructions">
+    <h3><i class="fas fa-lightbulb"></i> Capture Instructions</h3>
+    <p>
+      For optimal security and recognition accuracy, please follow these
+      guidelines:
+    </p>
+    <ul>
+      <li>Ensure you are in a well-lit environment</li>
+      <li>Position yourself directly facing the camera</li>
+      <li>Slowly rotate your head to show different angles</li>
+      <li>Make natural expressions (smile, neutral, etc.)</li>
+      <li>Remove hats, glasses, or anything covering your face</li>
+    </ul>
+  </div>
+
+  <div class="face-capture-container">
+    <div class="video-container">
+      <video id="videoElement" autoplay playsinline></video>
+      <div class="capture-controls">
+        <button class="capture-btn" id="captureBtn">
+          <i class="fas fa-camera"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="capture-feedback">
+      <div class="capture-status">
+        <h3>Enrollment Progress</h3>
+        <p>We need multiple angles for secure authentication</p>
+
+        <div class="progress-container">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div class="requirements">
+          <div class="requirement">
+            <i class="fas fa-check-circle"></i>
+            <span>Front View</span>
+          </div>
+          <div class="requirement">
+            <i class="fas fa-check-circle"></i>
+            <span>Left Profile</span>
+          </div>
+          <div class="requirement">
+            <i class="fas fa-circle"></i>
+            <span>Right Profile</span>
+          </div>
+          <div class="requirement">
+            <i class="fas fa-circle"></i>
+            <span>Expressions</span>
+          </div>
+        </div>
+
+        <!-- New Username Input Section -->
+       <div class="form-group">
+    <label for="usernameInput"><i class="fas fa-user"></i> Enter Username</label>
+    <input
+      type="text"
+      id="User-face"
+      class="form-control"
+      placeholder="Enter your username"
+      required
+    />
+  </div>
+</div>
+
+      <div class="capture-status">
+        <h3>Security Status</h3>
+        <p>All captured data is encrypted using AES-256</p>
+        <div class="status-message success">
+          <i class="fas fa-lock"></i> Face data encrypted and secured
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+      <!-- Security Features Section -->
+      <div class="section-header">
+        <h2>Security & Privacy Features</h2>
+        <p>Enterprise-grade protection for your biometric data</p>
+      </div>
+
+      <div class="security-features">
+        <div class="security-card">
+          <i class="fas fa-lock"></i>
+          <h3>Data Encryption</h3>
+          <p>
+            All biometric data is encrypted using AES-256 encryption before
+            storage.
+          </p>
+          <ul class="feature-list">
+            <li><i class="fas fa-check"></i> Images encrypted at rest</li>
+            <li><i class="fas fa-check"></i> Secure key management</li>
+            <li><i class="fas fa-check"></i> Hardware-level encryption</li>
+          </ul>
+        </div>
+
+        <div class="security-card">
+          <i class="fas fa-user-shield"></i>
+          <h3>Authentication</h3>
+          <p>Multi-layered security protocols for identity verification.</p>
+          <ul class="feature-list">
+            <li><i class="fas fa-check"></i> Multi-factor authentication</li>
+            <li><i class="fas fa-check"></i> Password hashing (bcrypt)</li>
+            <li><i class="fas fa-check"></i> Session timeouts</li>
+          </ul>
+        </div>
+
+        <div class="security-card">
+          <i class="fas fa-shield-alt"></i>
+          <h3>Data Privacy</h3>
+          <p>Comprehensive privacy controls and compliance.</p>
+          <ul class="feature-list">
+            <li><i class="fas fa-check"></i> GDPR-compliant data handling</li>
+            <li><i class="fas fa-check"></i> User consent management</li>
+            <li><i class="fas fa-check"></i> Right to be forgotten</li>
+          </ul>
+        </div>
+
+        <div class="security-card">
+          <i class="fas fa-exchange-alt"></i>
+          <h3>Secure Communication</h3>
+          <p>End-to-end protection for data in transit.</p>
+          <ul class="feature-list">
+            <li><i class="fas fa-check"></i> TLS 1.3 encryption</li>
+            <li><i class="fas fa-check"></i> HTTPS for all connections</li>
+            <li><i class="fas fa-check"></i> Certificate pinning</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer>
+        <div class="footer-links">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+          <a href="#">Data Consent</a>
+          <a href="#">Delete My Data</a>
+          <a href="#">Contact Support</a>
+        </div>
+        <p class="copyright">
+          ©️ 2023 SecureFace Biometric Systems | All Rights Reserved
+        </p>
+      </footer>
+    </div>
+    <!-- Username Modal -->
+<div id="usernameModal" class="modal">
+  <div class="modal-content">
+    <button class="close-modal" id="closeUsernameModal">&times;</button>
+    
+    <div class="auth-header">
+      <h2>Face Login</h2>
+      <p>Enter your username to start facial recognition</p>
+    </div>
+
+    <div class="form-group">
+      <input
+        type="text"
+        id="loginUsername"
+        class="form-control"
+        placeholder="Enter your username"
+        required
+      />
+    </div>
+
+    <button id="startCameraBtn" class="btn-primary">
+      <i class="fas fa-video"></i> Start Camera
+    </button>
+  </div>
+</div>
+
+    <!-- Dashboard Page -->
+    <div class="container dashboard" id="dashboardPage">
+      <div class="dashboard-header">
+        <div class="user-info">
+          <div class="user-avatar" id="userAvatar">JD</div>
+          <div>
+            <h2 id="welcomeMessage">Welcome, John Doe</h2>
+            <p>Last login: <span id="lastLogin">Today at 10:30 AM</span></p>
+          </div>
+        </div>
+        <button class="logout-btn" id="logoutBtn">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
+
+      <div class="portfolio-section">
+        <div class="section-header">
+          <h2>Your Portfolio</h2>
+          <p>Manage your digital assets and security settings</p>
+        </div>
+
+        <div class="portfolio-grid">
+          <div class="portfolio-card">
+            <h3><i class="fas fa-wallet"></i> Digital Wallet</h3>
+            <p>
+              Secure storage for your cryptocurrencies and digital assets with
+              military-grade encryption.
+            </p>
+            <div class="portfolio-stats">
+              <div class="stat-item">
+                <div class="stat-value">5</div>
+                <div class="stat-label">Assets</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">$12,450</div>
+                <div class="stat-label">Value</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="portfolio-card">
+            <h3><i class="fas fa-id-card"></i> Identity Vault</h3>
+            <p>
+              Securely store and manage your digital identity documents and
+              credentials.
+            </p>
+            <div class="portfolio-stats">
+              <div class="stat-item">
+                <div class="stat-value">3</div>
+                <div class="stat-label">Documents</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">100%</div>
+                <div class="stat-label">Verified</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="portfolio-card">
+            <h3><i class="fas fa-key"></i> Security Center</h3>
+            <p>Manage your authentication methods and security preferences.</p>
+            <div class="portfolio-stats">
+              <div class="stat-item">
+                <div class="stat-value">2FA</div>
+                <div class="stat-label">Enabled</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">Biometric</div>
+                <div class="stat-label">Active</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="portfolio-card">
+            <h3><i class="fas fa-chart-line"></i> Activity Log</h3>
+            <p>Monitor all access attempts and security events in real-time.</p>
+            <div class="portfolio-stats">
+              <div class="stat-item">
+                <div class="stat-value">12</div>
+                <div class="stat-label">Logins</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">0</div>
+                <div class="stat-label">Alerts</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activity Section -->
+      <div class="portfolio-section">
+        <div class="section-header">
+          <h2>Recent Activity</h2>
+          <p>Track your account access and security events</p>
+        </div>
+
+        <div class="security-card">
+          <h3><i class="fas fa-history"></i> Access History</h3>
+          <ul class="feature-list">
+            <li>
+              <i class="fas fa-check-circle" style="color: var(--success)"></i>
+              Successful login - Today at 10:30 AM (Biometric)
+            </li>
+            <li>
+              <i class="fas fa-check-circle" style="color: var(--success)"></i>
+              Successful login - Yesterday at 8:45 PM (Password + MFA)
+            </li>
+            <li>
+              <i class="fas fa-times-circle" style="color: var(--error)"></i>
+              Failed login attempt - Yesterday at 3:12 PM (Blocked)
+            </li>
+            <li>
+              <i class="fas fa-shield-alt" style="color: var(--accent)"></i>
+              Security settings updated - 2 days ago
+            </li>
+          </ul>
+        </div>
+      </div>
+
+
+    <!-- MFA Verification Modal -->
+    <div class="modal" id="mfaModal">
+      <div class="modal-content">
+        <button class="close-modal" id="closeModal">&times;</button>
+        <div class="auth-header">
+          <h2>Multi-Factor Authentication</h2>
+          <p>Enter the verification code sent to your email</p>
+        </div>
+
+        <div class="form-group">
+          <input
+            type="text"
+            id="verificationCode"
+            class="form-control"
+            placeholder="6-digit code"
+            maxlength="6"
+          />
+        </div>
+
+        <div class="form-group">
+          <button class="btn btn-primary" id="verifyBtn">
+            <i class="fas fa-check-circle"></i> Verify Code
+          </button>
+        </div>
+
+        <div class="form-group text-center">
+          <button class="btn btn-outline" id="resendCodeBtn">
+            <i class="fas fa-redo"></i> Resend Code
+          </button>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="./face-api.js"></script>
+    <script type="module" defer src="script.js"></script>
+  </body>
+
+  </html>
