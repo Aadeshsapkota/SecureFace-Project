@@ -22,6 +22,7 @@ const verificationCodeInput = document.getElementById("verificationCode");
 const userAvatar = document.getElementById("userAvatar");
 const welcomeMessage = document.getElementById("welcomeMessage");
 const lastLogin = document.getElementById("lastLogin");
+const verificationModal = document.getElementById("verificationModal")
 
 
 
@@ -85,7 +86,9 @@ registerBtn.addEventListener("click", async (e) => {
 loginBtn.addEventListener("click", async () => {
   const email = document.getElementById("loginEmail").value.trim();
   const password = document.getElementById("loginPassword").value;
-  const mfaCode = document.getElementById("mfaCode").value.trim();
+
+  
+ 
 
   if (!email || !password) {
     return Swal.fire({
@@ -95,7 +98,21 @@ loginBtn.addEventListener("click", async () => {
       confirmButtonColor: "#3085d6"
     });
   }
+   verificationModal.style.display = "block"
 
+   
+
+   function WaitForSubmit() {
+  return new Promise(resolve => {
+    document.getElementById("submitCodeBtn").addEventListener("click", () => {
+      verificationModal.style.display = "none";
+      resolve(); 
+    }, { once: true }); 
+  });
+
+}
+await WaitForSubmit();
+const mfaCode = document.getElementById("verificationcode").value.trim();
   const loginData = { email, password, mfaCode };
 
   try {
@@ -134,7 +151,9 @@ loginBtn.addEventListener("click", async () => {
     });
   }
 });
-
+document.getElementById("closeVerificationModal").addEventListener("click",()=>{
+  verificationModal.style.display = "none";
+})
 // function to open camera and start video
 async function initFaceRecognition() {
   try {
@@ -341,6 +360,8 @@ logoutBtn.addEventListener("click", () => {
 window.addEventListener("click", (event) => {
   if (event.target === mfaModal) hideModal(mfaModal);
 });
+
+
 
 // Tips rotation
 const environmentTips = [

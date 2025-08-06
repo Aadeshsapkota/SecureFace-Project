@@ -119,15 +119,9 @@
           </div>
 
           <div class="form-group">
-            <label for="mfaCode">MFA Code</label>
-            <input
-              type="text"
-              id="mfaCode"
-              class="form-control"
-              placeholder="Enter 6-digit code"
-            />
-            <small style="display: block; margin-top: 5px; opacity: 0.7">
-              <i class="fas fa-mobile-alt"></i> Sent to your email
+            <label for="mfaCode"></label>
+            
+            <small style="display: block; margin-top: 30px; opacity: 0.7"> 
             </small>
           </div>
 
@@ -328,6 +322,36 @@
     <button id="startCameraBtn" class="btn-primary">
       <i class="fas fa-video"></i> Start Camera
     </button>
+  </div>
+</div>
+  <!-- Verification Code Modal -->
+<div id="verificationModal" class="modal">
+  <div class="modal-content">
+    <button class="close-modal" id="closeVerificationModal">&times;</button>
+    
+    <div class="auth-header">
+      <h2>Verification Code</h2>
+      <p>Please enter the 6-digit code sent to your email</p>
+    </div>
+
+    <div class="form-group">
+      <input
+        type="text"
+        id="verificationcode"
+        class="form-control"
+        placeholder="Enter 6-digit code"
+        maxlength="6"
+        required
+      />
+    </div>
+
+    <button id="submitCodeBtn" class="btn-primary">
+      <i class="fas fa-check-circle"></i> Submit Code
+    </button>
+
+    <p class="resend-text">
+      Didn’t get the code? <button id="resendCodeBtn" class="btn-link">Resend</button>
+    </p>
   </div>
 </div>
 
