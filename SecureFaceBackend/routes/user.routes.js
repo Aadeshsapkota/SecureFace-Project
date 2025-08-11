@@ -7,7 +7,7 @@ router.route("/register").post(registerUser);
 router.route("/login").post(loginUser);
 router.route('/register-face').post(registerFace);
 router.route('/login-face').post(loginWithFace);
-router.route('/verify').post( verifyUserCode); 
+router.route('/verify-code').post( verifyUserCode);
 
 
 

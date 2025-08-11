@@ -15,8 +15,6 @@ app.use(cors({
 }));
 
 
-
-
 app.use("/api/users",userRouter) 
 
 export {app};

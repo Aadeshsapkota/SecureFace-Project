@@ -23,23 +23,13 @@ export const registerUser = async (req, res) => {
     }
     
       const hashedPassword = await bcrypt.hash(password, 10);
-      const Code = Math.floor(1000 + Math.random() * 9000).toString();
-
       const newUser = new User({
         username,
         email,
         password: hashedPassword,
         isVerified: false,
-        verificationCode:Code,
       });
       newUser.save();
-
-     
-        try {
-          await sendVerificationEmail(email,Code);
-        } catch (error) {
-          return res.status(400).json({ error: 'Error sending email to the user' });
-        }
       
       return res.status(201).json({ success : true ,message: 'User is registered SucessFully , Enter verification code to log in', user: newUser });
     }
@@ -50,9 +40,8 @@ export const registerUser = async (req, res) => {
 
 
 export const loginUser = async (req, res) => {
-  const { email, password,mfaCode } = req.body;
+  const { email, password } = req.body;
 
-  // Validate input
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
   }
@@ -66,19 +55,28 @@ export const loginUser = async (req, res) => {
 
     // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log(isMatch);
     if (!isMatch) {
       return res.status(400).json({ error: 'Invalid email or password' });
     }
-    //compare mfa code
-    if(mfaCode !== user.verificationCode){
-      return res.status(400).json({error:'Code Did not match '})
+
+    // Generate new verification code
+    const code = Math.floor(1000 + Math.random() * 9000).toString();
+    user.verificationCode = code;
+    user.verificationCodeExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
+
+    await user.save();
+
+    try {
+      await sendVerificationEmail(email, code);
+    } catch (error) {
+      return res.status(400).json({ error: 'Error sending verification email' });
     }
-    user.isVerified = true;
-    // If you want to return user info (excluding password)
-    const { password: _, ...userData } = user._doc;
 
-
-    return res.status(200).json({ success:true , message: 'Login successful', user: userData });
+    return res.status(200).json({
+      success: true,
+      message: 'Password correct. Verification code sent. Code will expire in 5 minutes.',
+    });
   } catch (error) {
     console.error('Login error:', error);
     return res.status(500).json({ error: 'Server error' });
@@ -86,25 +84,35 @@ export const loginUser = async (req, res) => {
 };
 
 
-
 export const verifyUserCode = async (req, res) => {
   const { email, code } = req.body;
 
   try {
-    const user = await User.findById(email);
-    if (!user || user.verificationCode !== code || user.verificationCodeExpires < Date.now()) {
+    const user = await User.findOne({ email });
+    if (
+      !user ||
+      user.verificationCode !== code ||
+      !user.verificationCodeExpires ||
+      user.verificationCodeExpires < Date.now()
+    ) {
       return res.status(400).json({ error: 'Invalid or expired code' });
     }
 
     user.isVerified = true;
     user.verificationCode = null;
     user.verificationCodeExpires = null;
-    return res.status(200).json({ message: 'Verification successful' });
+
+    await user.save();
+
+    // At this point you could generate JWT/session if needed
+    const { password, ...userData } = user._doc;
+    return res.status(200).json({ success: true, message: 'Verification successful', user: userData });
   } catch (err) {
     console.error('Verification error:', err);
     res.status(500).json({ error: 'Server error' });
   }
 };
+
 // New endpoint for storing face descriptor after verification
 export const registerFace = async (req, res) => {
   const { username, descriptor } = req.body;

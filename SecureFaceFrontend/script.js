@@ -87,58 +87,74 @@ loginBtn.addEventListener("click", async () => {
   const email = document.getElementById("loginEmail").value.trim();
   const password = document.getElementById("loginPassword").value;
 
-  
- 
-
   if (!email || !password) {
     return Swal.fire({
       icon: "warning",
       title: "Missing Fields",
       text: "Please enter both email and password!",
-      confirmButtonColor: "#3085d6"
+      confirmButtonColor: "#3085d6",
     });
   }
-   verificationModal.style.display = "block"
-
-   
-
-   function WaitForSubmit() {
-  return new Promise(resolve => {
-    document.getElementById("submitCodeBtn").addEventListener("click", () => {
-      verificationModal.style.display = "none";
-      resolve(); 
-    }, { once: true }); 
-  });
-
-}
-await WaitForSubmit();
-const mfaCode = document.getElementById("verificationcode").value.trim();
-  const loginData = { email, password, mfaCode };
 
   try {
+    // Step 1: Send email + password to /login
     const res = await fetch("http://localhost:3000/api/users/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(loginData),
+      body: JSON.stringify({ email, password }),
     });
 
     const response = await res.json();
-    console.log("Backend Response:", response);
 
-    if (response.success === true || response.status === "success") {
+    if (!response.success) {
+      return Swal.fire({
+        icon: "error",
+        title: "Login Failed",
+        text: response.message || "Invalid email or password.",
+        confirmButtonColor: "#d33",
+      });
+    }
+
+    // Step 2: Show verification modal to enter code
+    verificationModal.style.display = "block";
+
+    // Wait for user to submit code
+    const mfaCode = await new Promise((resolve) => {
+      document.getElementById("submitCodeBtn").addEventListener(
+        "click",
+        () => {
+          verificationModal.style.display = "none";
+          const code = document.getElementById("verificationcode").value.trim();
+          resolve(code);
+        },
+        { once: true }
+      );
+    });
+
+    // Step 3: Send email + code to /verify-code
+    const verifyRes = await fetch("http://localhost:3000/api/users/verify-code", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, code: mfaCode }),
+    });
+
+    const verifyResponse = await verifyRes.json();
+
+    if (verifyResponse.success) {
       Swal.fire({
         icon: "success",
         title: "Login Successful 🎉",
-        text: `Welcome, ${response.name || email}!`,
-        confirmButtonColor: "#28a745"
+        text: `Welcome, ${verifyResponse.user.username || email}!`,
+        confirmButtonColor: "#28a745",
       });
-       showDashboard(response.user);
+
+      showDashboard(verifyResponse.user);
     } else {
       Swal.fire({
         icon: "error",
-        title: "Login Failed",
-        text: response.message || "Unknown error occurred.",
-        confirmButtonColor: "#d33"
+        title: "Verification Failed",
+        text: verifyResponse.error || "Invalid or expired code.",
+        confirmButtonColor: "#d33",
       });
     }
   } catch (err) {
@@ -147,10 +163,11 @@ const mfaCode = document.getElementById("verificationcode").value.trim();
       icon: "error",
       title: "Server Error",
       text: "An error occurred during login.",
-      confirmButtonColor: "#d33"
+      confirmButtonColor: "#d33",
     });
   }
 });
+
 document.getElementById("closeVerificationModal").addEventListener("click",()=>{
   verificationModal.style.display = "none";
 })
